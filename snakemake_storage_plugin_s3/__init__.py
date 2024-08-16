@@ -99,7 +99,15 @@ class StorageProviderSettings(StorageProviderSettingsBase):
             "type": int,
         },
     )
-
+    skip_inventory: Optional[bool] = field(
+        default=False,
+        metadata={
+            "help": "Skip inventorying entire bucket contents.  Set to true for large buckets that take a long time to fetch all objects",
+            "env_var": False,
+            "required": False
+            "type": bool
+        }
+    )
 
 # Required:
 # Implementation of your storage provider
@@ -112,6 +120,7 @@ class StorageProvider(StorageProviderBase):
     # futher stuff.
 
     def __post_init__(self):
+        self.skip_inventory = self.settings.skip_inventory
         self.s3c = boto3.resource(
             "s3",
             endpoint_url=self.settings.endpoint_url,
@@ -218,7 +227,7 @@ class StorageObject(StorageObjectRead, StorageObjectWrite, StorageObjectGlob):
         # If this is implemented in a storage object, results have to be stored in
         # the given IOCache object.
 
-        if self.get_inventory_parent() in cache.exists_in_storage:
+        if self.get_inventory_parent() in cache.exists_in_storage or self.skip_inventory:
             # bucket has been inventorized before, stop here
             return
 
@@ -227,11 +236,11 @@ class StorageObject(StorageObjectRead, StorageObjectWrite, StorageObjectGlob):
             cache.exists_in_storage[self.cache_key()] = False
         else:
             cache.exists_in_storage[self.get_inventory_parent()] = True
-            obj = self.s3obj()
-            key = self.cache_key(self._local_suffix_from_key(obj.key))
-            cache.mtime[key] = Mtime(storage=obj.last_modified.timestamp())
-            cache.size[key] = obj.size
-            cache.exists_in_storage[key] = True
+            for obj in self.s3bucket().objects.all():
+                key = self.cache_key(self._local_suffix_from_key(obj.key))
+                cache.mtime[key] = Mtime(storage=obj.last_modified.timestamp())
+                cache.size[key] = obj.size
+                cache.exists_in_storage[key] = True
 
     def get_inventory_parent(self) -> Optional[str]:
         """Return the parent directory of this object."""
