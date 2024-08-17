@@ -127,7 +127,6 @@ class StorageProvider(StorageProviderBase):
             aws_access_key_id=self.settings.access_key,
             aws_secret_access_key=self.settings.secret_key,
             aws_session_token=self.settings.token,
-            verify=True,
             config=boto3.session.Config(
                 signature_version=self.settings.signature_version,
                 retries={
@@ -135,7 +134,7 @@ class StorageProvider(StorageProviderBase):
                     "mode": "standard",
                 },
             ),
-            verify=False,  # TODO required?
+            verify=True,
         )
 
     @classmethod
