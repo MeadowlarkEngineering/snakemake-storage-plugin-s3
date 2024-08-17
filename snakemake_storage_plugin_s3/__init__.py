@@ -227,7 +227,7 @@ class StorageObject(StorageObjectRead, StorageObjectWrite, StorageObjectGlob):
         # If this is implemented in a storage object, results have to be stored in
         # the given IOCache object.
 
-        if self.get_inventory_parent() in cache.exists_in_storage or self.skip_inventory:
+        if self.get_inventory_parent() in cache.exists_in_storage or self.provider.skip_inventory:
             # bucket has been inventorized before, stop here
             return
 
