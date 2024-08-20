@@ -99,13 +99,12 @@ class StorageProviderSettings(StorageProviderSettingsBase):
             "type": int,
         },
     )
-    skip_inventory: Optional[bool] = field(
+    skip_inventory: Optional[int] = field(
         default=False,
         metadata={
-            "help": "Skip inventorying entire bucket contents.  Set to true for large buckets that take a long time to fetch all objects",
+            "help": "Skip inventorying entire bucket contents.  Set to truthy for large buckets that take a long time to fetch all objects",
             "env_var": False,
             "required": False,
-            "action": "store_true"
         }
     )
 
