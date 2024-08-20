@@ -105,7 +105,7 @@ class StorageProviderSettings(StorageProviderSettingsBase):
             "help": "Skip inventorying entire bucket contents.  Set to true for large buckets that take a long time to fetch all objects",
             "env_var": False,
             "required": False,
-            "type": bool
+            "action": "store_true"
         }
     )
 
